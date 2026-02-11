@@ -64,7 +64,7 @@ namespace RedPowerOffInformer
 
         private PeriodStatus GetPeriodStatus()
         {
-            if (Start > DateTime.Now && End < DateTime.Now)
+            if (Start < DateTime.Now && End > DateTime.Now)
             {
                 return PeriodStatus.Active;
             }
