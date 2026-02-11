@@ -69,12 +69,12 @@ namespace RedPowerOffInformer
                 return PeriodStatus.Active;
             }
 
-            if (Start < DateTime.Now)
+            if (Start > DateTime.Now)
             {
                 return PeriodStatus.Future;
             }
 
-            if (End > DateTime.Now)
+            if (End < DateTime.Now)
             {
                 return PeriodStatus.Past;
             }

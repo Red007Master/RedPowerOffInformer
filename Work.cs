@@ -76,8 +76,8 @@ namespace RedPowerOffInformer
                             case PeriodStatus.Future:
                                 timeColor = "blue";
                                 break;
-
-                            default:
+                                
+                            case PeriodStatus.Unset:
                                 timeColor = "white";
                                 break;
                         }
