@@ -61,7 +61,28 @@ namespace RedPowerOffInformer
                     // Add power-off periods
                     for (int j = 0; j < lOEPowerInfo.GroupInfos[i].PowerOffs.Length; j++)
                     {
-                        table.AddRow(new Markup($"[bold]Period {j + 1}[/]"), new Text(lOEPowerInfo.GroupInfos[i].PowerOffs[j].ToString()));
+                        string timeColor = "white";
+
+                        switch (lOEPowerInfo.GroupInfos[i].PowerOffs[j].Status)
+                        {
+                            case PeriodStatus.Past:
+                                timeColor = "red";
+                                break;
+
+                            case PeriodStatus.Active:
+                                timeColor = "green";
+                                break;
+
+                            case PeriodStatus.Future:
+                                timeColor = "blue";
+                                break;
+
+                            default:
+                                timeColor = "white";
+                                break;
+                        }
+
+                        table.AddRow(new Markup($"[bold]Period {j + 1}[/]"), new Markup($"[{timeColor}]{lOEPowerInfo.GroupInfos[i].PowerOffs[j]}[/]"));
                     }
 
                     break;

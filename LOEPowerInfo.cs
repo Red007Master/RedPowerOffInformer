@@ -16,11 +16,7 @@ public class LOEPowerInfo
 
     public LOEPowerInfo(string urlContent, LOEPowerInfoType targetDate)
     {
-        // ApiModel apiModel = ApiModel.FromJson(urlContent);
-
         JObject lOEPowerInfoJObj = JObject.Parse(urlContent);
-
-        // string contentDivAsHtml = apiModel.HydraMember[0].MenuItems[0].RawHtml;
 
         string? rawHtml, rawHtmlMobile;
 

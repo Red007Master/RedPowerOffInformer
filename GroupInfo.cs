@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Spectre.Console;
 
 namespace RedPowerOffInformer
 {
@@ -59,6 +60,28 @@ namespace RedPowerOffInformer
         public DateTime Start { get; private set; } = new DateTime();
         public DateTime End { get; private set; } = new DateTime();
 
+        public PeriodStatus Status { get {return GetPeriodStatus();} }
+
+        private PeriodStatus GetPeriodStatus()
+        {
+            if (Start > DateTime.Now && End < DateTime.Now)
+            {
+                return PeriodStatus.Active;
+            }
+
+            if (Start < DateTime.Now)
+            {
+                return PeriodStatus.Future;
+            }
+
+            if (End > DateTime.Now)
+            {
+                return PeriodStatus.Past;
+            }
+
+            return PeriodStatus.Unset;
+        }
+
         public Period(DateTime start, DateTime end)
         {
             Start = start;
@@ -76,5 +99,13 @@ namespace RedPowerOffInformer
                 return $"{Start} - {End}";
             }
         }
+    }
+
+    public enum PeriodStatus
+    {
+        Unset,
+        Future,
+        Active,
+        Past,
     }
 }
