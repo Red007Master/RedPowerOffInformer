@@ -76,13 +76,20 @@ namespace RedPowerOffInformer
                             case PeriodStatus.Future:
                                 timeColor = "blue";
                                 break;
-                                
+
                             case PeriodStatus.Unset:
                                 timeColor = "white";
                                 break;
                         }
 
-                        table.AddRow(new Markup($"[bold]Period {j + 1}[/]"), new Markup($"[{timeColor}]{lOEPowerInfo.GroupInfos[i].PowerOffs[j]}[/]"));
+                        if (lOEPowerInfo.GroupInfos[i].PowerOffs[j].Status == PeriodStatus.Future)
+                        {
+                            table.AddRow(new Markup($"[bold]Period {j + 1}[/]"), new Markup($"[{timeColor}]{lOEPowerInfo.GroupInfos[i].PowerOffs[j]}[/] (in {(lOEPowerInfo.GroupInfos[i].PowerOffs[j].Start - DateTime.Now).ToString(@"hh\:mm\:ss")})"));
+                        }
+                        else
+                        {
+                            table.AddRow(new Markup($"[bold]Period {j + 1}[/]"), new Markup($"[{timeColor}]{lOEPowerInfo.GroupInfos[i].PowerOffs[j]}[/]"));
+                        }
                     }
 
                     break;
