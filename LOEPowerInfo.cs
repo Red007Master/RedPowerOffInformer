@@ -16,7 +16,18 @@ public class LOEPowerInfo
 
     public LOEPowerInfo(string urlContent, LOEPowerInfoType targetDate)
     {
-        JObject lOEPowerInfoJObj = JObject.Parse(urlContent);
+        JObject? lOEPowerInfoJObj = null;
+
+        try
+        {
+            lOEPowerInfoJObj = JObject.Parse(urlContent);
+        }
+        catch (System.Exception)
+        {
+
+        }
+
+        lOEPowerInfoJObj ??= (JObject)JArray.Parse(urlContent)[0];
 
         string? rawHtml, rawHtmlMobile;
 
@@ -113,9 +124,6 @@ public class LOEPowerInfo
 
         string scheduleForPatern = @"Графік погодинних відключень на (\d{2}.\d{2}.\d{4})";
         string lastUpdatedPatern = @"Інформація станом на (\d{2}.\d{2} \d{2}.\d{2}.\d{4})";
-
-
-
 
         Match scheduleForMatch = Regex.Match(scheduleForString, scheduleForPatern);
         InfoFor = DateOnly.ParseExact(AntiMoron.FixMoronTimeString(scheduleForMatch.Groups[1].Value), "dd.MM.yyyy", ci);
