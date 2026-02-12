@@ -2,6 +2,8 @@ using HtmlAgilityPack;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using Newtonsoft.Json.Linq;
+using System.Text;
+using Spectre.Console;
 
 namespace RedPowerOffInformer;
 
@@ -18,32 +20,56 @@ public class LOEPowerInfo
     {
         JObject? lOEPowerInfoJObj = null;
 
+        bool primaryParse = true;
+
         try
         {
             lOEPowerInfoJObj = JObject.Parse(urlContent);
         }
-        catch (System.Exception)
+        catch (System.Exception ex)
         {
-
+            Console.WriteLine("Something sus");
+            AnsiConsole.WriteException(ex);
+            primaryParse = false;
         }
 
         lOEPowerInfoJObj ??= (JObject)JArray.Parse(urlContent)[0];
 
         string? rawHtml, rawHtmlMobile;
 
-        if (targetDate == LOEPowerInfoType.Today)
+        if (primaryParse)
         {
-            rawHtml = (string?)lOEPowerInfoJObj["hydra:member"]?[0]?["menuItems"]?[0]?["rawHtml"];
-            rawHtmlMobile = (string?)lOEPowerInfoJObj["hydra:member"]?[0]?["menuItems"]?[0]?["rawMobileHtml"];
-        }
-        else if (targetDate == LOEPowerInfoType.Tomorrow)
-        {
-            rawHtml = (string?)lOEPowerInfoJObj["hydra:member"]?[0]?["menuItems"]?[2]?["rawHtml"];
-            rawHtmlMobile = (string?)lOEPowerInfoJObj["hydra:member"]?[0]?["menuItems"]?[2]?["rawMobileHtml"];
+            if (targetDate == LOEPowerInfoType.Today)
+            {
+                rawHtml = (string?)lOEPowerInfoJObj["hydra:member"]?[0]?["menuItems"]?[0]?["rawHtml"];
+                rawHtmlMobile = (string?)lOEPowerInfoJObj["hydra:member"]?[0]?["menuItems"]?[0]?["rawMobileHtml"];
+            }
+            else if (targetDate == LOEPowerInfoType.Tomorrow)
+            {
+                rawHtml = (string?)lOEPowerInfoJObj["hydra:member"]?[0]?["menuItems"]?[2]?["rawHtml"];
+                rawHtmlMobile = (string?)lOEPowerInfoJObj["hydra:member"]?[0]?["menuItems"]?[2]?["rawMobileHtml"];
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
         else
         {
-            throw new NotImplementedException();
+            if (targetDate == LOEPowerInfoType.Today)
+            {
+                rawHtml = (string?)lOEPowerInfoJObj?["menuItems"]?[0]?["rawHtml"];
+                rawHtmlMobile = (string?)lOEPowerInfoJObj?["menuItems"]?[0]?["rawMobileHtml"];
+            }
+            else if (targetDate == LOEPowerInfoType.Tomorrow)
+            {
+                rawHtml = (string?)lOEPowerInfoJObj["hydra:member"]?[0]?["menuItems"]?[2]?["rawHtml"];
+                rawHtmlMobile = (string?)lOEPowerInfoJObj["hydra:member"]?[0]?["menuItems"]?[2]?["rawMobileHtml"];
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         bool inputDataIsNullOrEmpty = string.IsNullOrWhiteSpace(rawHtml) || string.IsNullOrWhiteSpace(rawHtmlMobile);
