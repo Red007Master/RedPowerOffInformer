@@ -96,7 +96,7 @@ public class LOEPowerInfo
         {
             AnsiConsole.MarkupLine("[bold]SMERT[/]");
             AnsiConsole.WriteException(ex);
-            throw ex;
+            throw;
         }
     }
 
@@ -129,8 +129,8 @@ public class LOEPowerInfo
 
     private void ParseAndPopulateData(string[] data)
     {
-        string scheduleForString = String.Empty;
-        string lastUpdatedString = String.Empty;
+        string scheduleForString = string.Empty;
+        string lastUpdatedString = string.Empty;
 
         List<string> groupLines = new List<string>();
 
@@ -158,7 +158,7 @@ public class LOEPowerInfo
             throw new FormatException("Failed to parse scheduleForString.");
 
         if (lastUpdatedString == String.Empty)
-            throw new FormatException("Failezxd to parse scheduleForString.");
+            throw new FormatException("Failed to parse scheduleForString.");
 
         CultureInfo ci = new CultureInfo("ua-UK");
 
