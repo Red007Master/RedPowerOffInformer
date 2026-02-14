@@ -44,6 +44,9 @@ namespace RedPowerOffInformer
         {
             var table = new Table();
 
+            table.BorderColor(lOEPowerInfo.Finished ? ConsoleColor.White : ConsoleColor.Red);
+            table.Border(TableBorder.Square);
+
             // Add columns
             table.AddColumn("Property");
             table.AddColumn("Value");

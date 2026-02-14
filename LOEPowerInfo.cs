@@ -16,78 +16,37 @@ public class LOEPowerInfo
 
     public bool Finished { get; private set; } = false;
 
-    public LOEPowerInfo(string urlContent, LOEPowerInfoType targetDate)
+    public LOEPowerInfo(string apiResponse, LOEPowerInfoType targetDate)
     {
-        JObject? lOEPowerInfoJObj = null;
-
-        bool primaryParse = true;
-
-        try
-        {
-            lOEPowerInfoJObj = JObject.Parse(urlContent);
-        }
-        catch (System.Exception ex)
-        {
-            Console.WriteLine("Something sus");
-            AnsiConsole.WriteException(ex);
-            primaryParse = false;
-        }
-
-        lOEPowerInfoJObj ??= (JObject)JArray.Parse(urlContent)[0];
-
         string? rawHtml, rawHtmlMobile;
 
-        if (primaryParse)
+        JArray? menuItems = ExtractMenuItems(apiResponse);
+
+        if (menuItems is null)
         {
-            if (targetDate == LOEPowerInfoType.Today)
-            {
-                rawHtml = (string?)lOEPowerInfoJObj["hydra:member"]?[0]?["menuItems"]?[0]?["rawHtml"];
-                rawHtmlMobile = (string?)lOEPowerInfoJObj["hydra:member"]?[0]?["menuItems"]?[0]?["rawMobileHtml"];
-            }
-            else if (targetDate == LOEPowerInfoType.Tomorrow)
-            {
-                rawHtml = (string?)lOEPowerInfoJObj["hydra:member"]?[0]?["menuItems"]?[2]?["rawHtml"];
-                rawHtmlMobile = (string?)lOEPowerInfoJObj["hydra:member"]?[0]?["menuItems"]?[2]?["rawMobileHtml"];
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
-        }
-        else
-        {
-            if (targetDate == LOEPowerInfoType.Today)
-            {
-                rawHtml = (string?)lOEPowerInfoJObj?["menuItems"]?[0]?["rawHtml"];
-                rawHtmlMobile = (string?)lOEPowerInfoJObj?["menuItems"]?[0]?["rawMobileHtml"];
-            }
-            else if (targetDate == LOEPowerInfoType.Tomorrow)
-            {
-                rawHtml = (string?)lOEPowerInfoJObj["hydra:member"]?[0]?["menuItems"]?[2]?["rawHtml"];
-                rawHtmlMobile = (string?)lOEPowerInfoJObj["hydra:member"]?[0]?["menuItems"]?[2]?["rawMobileHtml"];
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
+            AnsiConsole.MarkupLine($"[bold]menuItems[/] is [bold]null[/] for [bold]{targetDate}[/]");
+            return;
         }
 
-        bool inputDataIsNullOrEmpty = string.IsNullOrWhiteSpace(rawHtml) || string.IsNullOrWhiteSpace(rawHtmlMobile);
+        (rawHtml, rawHtmlMobile) = ExtractRawHtml(menuItems, targetDate);
+
+        if (rawHtml != rawHtmlMobile)
+        {
+            ConsoleColor oldColor = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Red;
+
+            AnsiConsole.WriteLine($"RawHtml is different from RawMobileHtml.");
+            AnsiConsole.WriteLine($"[RawHtml------]==[{rawHtml}].");
+            AnsiConsole.WriteLine($"[RawMobileHtml]==[{rawHtmlMobile}].");
+            AnsiConsole.WriteLine("Using RawHtml for further processing.");
+
+            Console.ForegroundColor = oldColor;
+        }
+
+        bool inputDataIsNullOrEmpty = string.IsNullOrWhiteSpace(rawHtml);
 
         if (!inputDataIsNullOrEmpty)
         {
-            if (rawHtml != rawHtmlMobile)
-            {
-                ConsoleColor oldColor = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Red;
-
-                Console.WriteLine($"RawHtml is different from RawMobileHtml.");
-                Console.WriteLine($"[RawHtml------]==[{rawHtml}].");
-                Console.WriteLine($"[RawMobileHtml]==[{rawHtmlMobile}].");
-
-                Console.ForegroundColor = oldColor;
-            }
-
             HtmlDocument document = new();
 
             ArgumentException.ThrowIfNullOrWhiteSpace(rawHtml);
@@ -111,6 +70,61 @@ public class LOEPowerInfo
     public LOEPowerInfo(string[] data)
     {
         ParseAndPopulateData(data);
+    }
+
+    private JArray? ExtractMenuItems(string apiResponse)
+    {
+        try
+        {
+            JObject apiResponseJObect = JObject.Parse(apiResponse);
+
+            return (JArray?)apiResponseJObect?["hydra:member"]?[0]?["menuItems"];
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.WriteLine("Something sus");
+            AnsiConsole.WriteException(ex);
+        }
+
+        try
+        {
+            JObject apiResponseJObect = (JObject)JArray.Parse(apiResponse)[0];
+
+            return (JArray?)apiResponseJObect?["menuItems"];
+        }
+        catch (System.Exception ex)
+        {
+            AnsiConsole.MarkupLine("[bold]SMERT[/]");
+            AnsiConsole.WriteException(ex);
+            throw ex;
+        }
+    }
+
+    private (string? rawHtml, string? rawHtmlMobile) ExtractRawHtml(JArray menuItems, LOEPowerInfoType targetDate)
+    {
+        string? rawHtml = null, rawHtmlMobile = null;
+
+        string searchNameString = targetDate.ToString();
+
+        JObject? targetEntry = null;
+
+        foreach (JObject menuItem in menuItems)
+        {
+            string? menuItemName = (string?)menuItem["name"];
+
+            if (menuItemName == searchNameString)
+            {
+                targetEntry = menuItem;
+                break;
+            }
+        }
+
+        ArgumentNullException.ThrowIfNull(targetEntry);
+
+        rawHtml = (string?)targetEntry["rawHtml"];
+        rawHtmlMobile = (string?)targetEntry["rawMobileHtml"];
+
+        return (rawHtml, rawHtmlMobile);
     }
 
     private void ParseAndPopulateData(string[] data)
