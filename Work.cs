@@ -1,3 +1,4 @@
+using static RedPowerOffInformer.Program;
 using Spectre.Console;
 
 namespace RedPowerOffInformer
@@ -14,7 +15,7 @@ namespace RedPowerOffInformer
 
     public class Work
     {
-        public static void Start(string targetGroup)
+        public static void Start(Settings settings, Options options)
         {
             string loeAPIUrl = "https://api.loe.lviv.ua/api/menus?page=1&type=photo-grafic";
             string urlContent = GetUrlContent(loeAPIUrl).Result;
@@ -22,6 +23,11 @@ namespace RedPowerOffInformer
             // File.WriteAllText("apiexample.json", GetUrlContent(loeAPIUrl).Result);
             // string urlContent = File.ReadAllText("apiexample.json");
             // LOEPowerInfo lOEPowerInfo = new LOEPowerInfo(urlContent);
+
+            string targetGroup = settings.TargetGroup;
+
+            if (options.Group != null)
+                targetGroup = options.Group;
 
             LOEPowerInfo lOEPowerInfoToday = new(urlContent, LOEPowerInfoType.Today);
             LOEPowerInfo lOEPowerInfoTomorrow = new(urlContent, LOEPowerInfoType.Tomorrow);

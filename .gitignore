@@ -58,3 +58,6 @@ nunit-*.xml
 
 # VSCode
 .vscode
+
+#ApiExamples
+apiexample*.json

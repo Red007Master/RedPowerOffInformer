@@ -1,10 +1,13 @@
-﻿namespace RedPowerOffInformer;
+﻿using CommandLine;
+
+namespace RedPowerOffInformer;
 
 class Program
 {
     static void Main(string[] args)
     {
-        Settings settings = Initialization.Start();
-        Work.Start(settings.TargetGroup);
+        (Settings settings, Options options) = Initialization.Start(args);
+
+        Work.Start(settings, options);
     }
 }
