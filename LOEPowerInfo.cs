@@ -92,7 +92,7 @@ public class LOEPowerInfo
 
             return (JArray?)apiResponseJObect?["menuItems"];
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             AnsiConsole.MarkupLine("[bold]SMERT[/]");
             AnsiConsole.WriteException(ex);
