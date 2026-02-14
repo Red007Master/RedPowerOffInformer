@@ -21,18 +21,42 @@ namespace RedPowerOffInformer
             if (configExists)
             {
                 settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(applicationPaths.MainConfigFile));
+
+                FixSettingIfInvalid(settings, applicationPaths);
             }
 
             Parser.Default.ParseArguments<Options>(args)
             .WithParsed<Options>(o =>
             {
-               options = o;
+                options = o;
             });
 
             settings ??= CreateNewSettingsAndSave(applicationPaths);
             options ??= new Options();
 
             return (settings, options);
+        }
+
+        private static void FixSettingIfInvalid(Settings? settings, ApplicationPaths applicationPaths)
+        {
+            bool configFixed = false;
+
+            if (string.IsNullOrWhiteSpace(settings.LOEAPIUrl))
+            {
+                settings.LOEAPIUrl = "https://api.loe.lviv.ua/api/menus?page=1&type=photo-grafic";
+
+                configFixed = true;
+            }
+
+            if (configFixed)
+            {
+                SaveSettings(settings, applicationPaths);
+            }
+        }
+
+        private static void SaveSettings(Settings settings, ApplicationPaths applicationPaths)
+        {
+            File.WriteAllText(applicationPaths.MainConfigFile, JsonConvert.SerializeObject(settings, Formatting.Indented));
         }
 
         private static Settings CreateNewSettingsAndSave(ApplicationPaths applicationPaths)
@@ -43,7 +67,7 @@ namespace RedPowerOffInformer
 
             settings.TargetGroup = AnsiConsole.Ask<string>("What's your [green]power-off group[/]?");
 
-            File.WriteAllText(applicationPaths.MainConfigFile, JsonConvert.SerializeObject(settings, Formatting.Indented));
+            SaveSettings(settings, applicationPaths);
 
             return settings;
         }
@@ -52,6 +76,7 @@ namespace RedPowerOffInformer
     public class Settings
     {
         public string TargetGroup { get; set; } = string.Empty;
+        public string LOEAPIUrl { get; set; } = "https://api.loe.lviv.ua/api/menus?page=1&type=photo-grafic";
     }
 
     public class Options

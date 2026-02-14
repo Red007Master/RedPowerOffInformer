@@ -17,10 +17,9 @@ namespace RedPowerOffInformer
     {
         public static void Start(Settings settings, Options options)
         {
-            string loeAPIUrl = "https://api.loe.lviv.ua/api/menus?page=1&type=photo-grafic";
-            string urlContent = GetUrlContent(loeAPIUrl).Result;
+            string urlContent = GetUrlContent(settings.LOEAPIUrl).Result;
 
-            // File.WriteAllText("apiexample.json", GetUrlContent(loeAPIUrl).Result);
+            // File.WriteAllText("apiexample.json", GetUrlContent(settings.LOEAPIUrl).Result);
             // string urlContent = File.ReadAllText("apiexample.json");
             // LOEPowerInfo lOEPowerInfo = new LOEPowerInfo(urlContent);
 
