@@ -41,6 +41,8 @@ namespace RedPowerOffInformer
         {
             bool configFixed = false;
 
+            ArgumentNullException.ThrowIfNull(settings);
+
             if (string.IsNullOrWhiteSpace(settings.LOEAPIUrl))
             {
                 settings.LOEAPIUrl = "https://api.loe.lviv.ua/api/menus?page=1&type=photo-grafic";
