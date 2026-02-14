@@ -13,7 +13,7 @@ namespace RedsXDG
 
         public ApplicationPaths(string programName)
         {
-            if (FilenameIsValid(programName))
+            if (!FilenameIsValid(programName))
                 throw new ArgumentException($"[{programName}] is NOT a valid filename.");
 
             ConfigHome = Path.Join(XDGBaseDirectories.ConfigHome, programName);
@@ -26,7 +26,10 @@ namespace RedsXDG
 
         private bool FilenameIsValid(string filename)
         {
-            return !string.IsNullOrWhiteSpace(filename) && filename.IndexOfAny(Path.GetInvalidFileNameChars()) != -1;
+            bool isNullOrWhiteSpace = string.IsNullOrWhiteSpace(filename);
+            bool containsInvalidChars = filename.IndexOfAny(Path.GetInvalidFileNameChars()) != -1;
+
+            return !isNullOrWhiteSpace && !containsInvalidChars;
         }
     }
 }
