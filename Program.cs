@@ -1,6 +1,4 @@
-﻿using CommandLine;
-
-namespace RedPowerOffInformer;
+﻿namespace RedPowerOffInformer;
 
 class Program
 {

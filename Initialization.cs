@@ -1,8 +1,9 @@
 using System.Globalization;
-using Spectre.Console;
-using RedsXDG;
-using Newtonsoft.Json;
 using CommandLine;
+using Newtonsoft.Json;
+using RedsXDG;
+using Spectre.Console;
+
 
 namespace RedPowerOffInformer
 {
@@ -32,7 +33,9 @@ namespace RedPowerOffInformer
             });
 
             settings ??= CreateNewSettingsAndSave(applicationPaths);
-            options ??= new Options();
+            
+            if (options is null)
+                Environment.Exit(0);
 
             return (settings, options);
         }

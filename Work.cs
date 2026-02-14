@@ -1,5 +1,5 @@
-using static RedPowerOffInformer.Program;
 using Spectre.Console;
+
 
 namespace RedPowerOffInformer
 {
