@@ -31,7 +31,7 @@ namespace RedPowerOffInformer
             LOEPowerInfo lOEPowerInfoToday = new(urlContent, LOEPowerInfoType.Today);
             LOEPowerInfo lOEPowerInfoTomorrow = new(urlContent, LOEPowerInfoType.Tomorrow);
 
-            OutputLOEInfoIfFinished(lOEPowerInfoToday, targetGroup);
+            OutputLOEInfoIfFinished(lOEPowerInfoToday, targetGroup, true);
             OutputLOEInfoIfFinished(lOEPowerInfoTomorrow, targetGroup);
         }
 
@@ -45,7 +45,7 @@ namespace RedPowerOffInformer
             }
         }
 
-        private static void OutputLOEInfoIfFinished(LOEPowerInfo lOEPowerInfo, string targetGroup)
+        private static void OutputLOEInfoIfFinished(LOEPowerInfo lOEPowerInfo, string targetGroup, bool addTimeMap = false)
         {
             var table = new Table();
 
@@ -74,15 +74,15 @@ namespace RedPowerOffInformer
                         switch (lOEPowerInfo.GroupInfos[i].PowerOffs[j].Status)
                         {
                             case PeriodStatus.Past:
-                                timeColor = "red";
+                                timeColor = "#ff0000";
                                 break;
 
                             case PeriodStatus.Active:
-                                timeColor = "green";
+                                timeColor = "#008cff";
                                 break;
 
                             case PeriodStatus.Future:
-                                timeColor = "blue";
+                                timeColor = "#f7a809";
                                 break;
 
                             case PeriodStatus.Unset:
@@ -90,14 +90,35 @@ namespace RedPowerOffInformer
                                 break;
                         }
 
-                        if (lOEPowerInfo.GroupInfos[i].PowerOffs[j].Status == PeriodStatus.Future)
+                        if (lOEPowerInfo.GroupInfos[i].PowerOffs[j].Status == PeriodStatus.Past)
                         {
-                            table.AddRow(new Markup($"[bold]Period {j + 1}[/]"), new Markup($"[{timeColor}]{lOEPowerInfo.GroupInfos[i].PowerOffs[j]}[/] (in {(lOEPowerInfo.GroupInfos[i].PowerOffs[j].Start - DateTime.Now).ToString(@"hh\:mm\:ss")})"));
+                            table.AddRow(
+                                new Markup($"[bold]Period {j + 1}[/]"),
+                                new Markup($"[dim strikethrough {timeColor}]{lOEPowerInfo.GroupInfos[i].PowerOffs[j]}[/]"));
+                        }
+                        else if (lOEPowerInfo.GroupInfos[i].PowerOffs[j].Status == PeriodStatus.Future)
+                        {
+                            table.AddRow(
+                                new Markup($"[bold]Period {j + 1}[/]"),
+                                new Markup($"[{timeColor}]{lOEPowerInfo.GroupInfos[i].PowerOffs[j]}[/] (in {(lOEPowerInfo.GroupInfos[i].PowerOffs[j].Start - DateTime.Now).ToString(@"hh\:mm\:ss")})"));
                         }
                         else
                         {
-                            table.AddRow(new Markup($"[bold]Period {j + 1}[/]"), new Markup($"[{timeColor}]{lOEPowerInfo.GroupInfos[i].PowerOffs[j]}[/]"));
+                            table.AddRow(
+                                new Markup($"[bold]Period {j + 1}[/]"),
+                                new Markup($"[{timeColor}]{lOEPowerInfo.GroupInfos[i].PowerOffs[j]}[/]"));
                         }
+                    }
+
+                    if (addTimeMap)
+                    {
+                        table.AddRow(
+                            new Markup($"[bold]TimeMapPointer[/]"),
+                            new Markup(new string(' ', DateTime.Now.Hour - 1) + "↓"));
+
+                        table.AddRow(
+                            new Markup($"[bold]TimeMap[/]"),
+                            new Markup(GetTimeMapString(lOEPowerInfo.GroupInfos[i].PowerOffs)));
                     }
 
                     break;
@@ -106,6 +127,33 @@ namespace RedPowerOffInformer
 
             // Render the table
             AnsiConsole.Write(table);
+        }
+
+        private static string GetTimeMapString(Period[] powerOffs)
+        {
+            //█
+
+            bool[] timeMap = new bool[24];
+
+            foreach (Period powerOff in powerOffs)
+            {
+                int startHour = powerOff.Start.Hour;
+                int endHour = powerOff.End.Hour;
+
+                for (int hour = startHour; hour < endHour; hour++)
+                {
+                    timeMap[hour] = true;
+                }
+            }
+
+            string result = string.Empty;
+
+            for (int i = 0; i < timeMap.Length; i++)
+            {
+                result += timeMap[i] ? "[red]█[/]" : "[green]█[/]";
+            }
+
+            return result;
         }
     }
 }
