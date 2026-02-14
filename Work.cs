@@ -112,10 +112,7 @@ namespace RedPowerOffInformer
 
                     if (addTimeMap)
                     {
-                        int spaceCount = DateTime.Now.Hour - 1;
-
-                        if (spaceCount < 0)
-                            spaceCount = 0;
+                        int spaceCount = Math.Clamp(DateTime.Now.Hour, 0, 24);
 
                         table.AddRow(
                             new Markup($"[bold]TimeMapPointer[/]"),
