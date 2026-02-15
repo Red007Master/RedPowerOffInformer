@@ -23,10 +23,7 @@ namespace RedPowerOffInformer
             // string urlContent = File.ReadAllText("apiexample.json");
             // LOEPowerInfo lOEPowerInfo = new LOEPowerInfo(urlContent);
 
-            string targetGroup = settings.TargetGroup;
-
-            if (options.Group != null)
-                targetGroup = options.Group;
+            string targetGroup = options.Group ??= settings.TargetGroup;
 
             LOEPowerInfo lOEPowerInfoToday = new(urlContent, LOEPowerInfoType.Today);
             LOEPowerInfo lOEPowerInfoTomorrow = new(urlContent, LOEPowerInfoType.Tomorrow);

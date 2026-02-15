@@ -54,7 +54,7 @@ public class LOEPowerInfo
 
             HtmlNodeCollection paragraphs = document.DocumentNode.SelectNodes("//div/p");
 
-            List<string> textToParse = new List<string>();
+            List<string> textToParse = [];
 
             foreach (var p in paragraphs)
             {
@@ -132,7 +132,7 @@ public class LOEPowerInfo
         string scheduleForString = string.Empty;
         string lastUpdatedString = string.Empty;
 
-        List<string> groupLines = new List<string>();
+        List<string> groupLines = [];
 
         for (int i = 0; i < data.Length; i++)
         {
@@ -160,7 +160,7 @@ public class LOEPowerInfo
         if (lastUpdatedString == String.Empty)
             throw new FormatException("Failed to parse scheduleForString.");
 
-        CultureInfo ci = new CultureInfo("ua-UK");
+        CultureInfo ci = new("ua-UK");
 
         string scheduleForPatern = @"Графік погодинних відключень на (\d{2}.\d{2}.\d{4})";
         string lastUpdatedPatern = @"Інформація станом на (\d{2}.\d{2} \d{2}.\d{2}.\d{4})";
@@ -175,7 +175,7 @@ public class LOEPowerInfo
 
     private GroupInfo[] ParseGroupLines(string[] groupLines, DateOnly baseDate)
     {
-        List<GroupInfo> groupInfos = new List<GroupInfo>();
+        List<GroupInfo> groupInfos = [];
 
         for (int i = 0; i < groupLines.Length; i++)
         {
