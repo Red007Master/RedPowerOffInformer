@@ -60,21 +60,21 @@ namespace RedPowerOffInformer
         public DateTime Start { get; private set; } = new DateTime();
         public DateTime End { get; private set; } = new DateTime();
 
-        public PeriodStatus Status { get {return GetPeriodStatus();} }
+        public PeriodStatus Status { get { return GetPeriodStatus(); } }
 
         private PeriodStatus GetPeriodStatus()
         {
-            if (Start < DateTime.Now && End > DateTime.Now)
+            if (Start < Clock.Now && End > Clock.Now)
             {
                 return PeriodStatus.Active;
             }
 
-            if (Start > DateTime.Now)
+            if (Start > Clock.Now)
             {
                 return PeriodStatus.Future;
             }
 
-            if (End < DateTime.Now)
+            if (End < Clock.Now)
             {
                 return PeriodStatus.Past;
             }

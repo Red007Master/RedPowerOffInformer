@@ -99,7 +99,7 @@ namespace RedPowerOffInformer
                         {
                             table.AddRow(
                                 new Markup($"[bold]Period {j + 1}[/]"),
-                                new Markup($"[{timeColor}]{lOEPowerInfo.GroupInfos[i].PowerOffs[j]}[/] (in {(lOEPowerInfo.GroupInfos[i].PowerOffs[j].Start - DateTime.Now).ToString(@"hh\:mm\:ss")})"));
+                                new Markup($"[{timeColor}]{lOEPowerInfo.GroupInfos[i].PowerOffs[j]}[/] (in {(lOEPowerInfo.GroupInfos[i].PowerOffs[j].Start - Clock.Now).ToString(@"hh\:mm\:ss")})"));
                         }
                         else
                         {
@@ -140,6 +140,8 @@ namespace RedPowerOffInformer
 
         private static (string timeMap, string timeMapPointer, string timeMapLegendLine1, string timeMapLegendLine2) GetTimeMap(Period[] powerOffs)
         {
+
+
             string timeMap = string.Empty;
             string timeMapPointer = string.Empty;
 
@@ -186,7 +188,7 @@ namespace RedPowerOffInformer
             }
 
 
-            DateTime currentTime = DateTime.Now;
+            DateTime currentTime = Clock.Now;
 
             double currentTimeInMinutes = currentTime.Hour * 60 + currentTime.Minute;
             int currentTimeBlock = Convert.ToInt32(Math.Round(currentTimeInMinutes / timeBlockLength));

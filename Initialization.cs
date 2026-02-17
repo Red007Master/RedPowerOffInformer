@@ -14,6 +14,8 @@ namespace RedPowerOffInformer
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-GB", false);
             ApplicationPaths applicationPaths = new ApplicationPaths("RedPowerOffInformer");
 
+            Clock.TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv");
+
             Settings? settings = null;
             Options? options = null;
 
