@@ -1,3 +1,5 @@
+using System.Numerics;
+using System.Text;
 using Spectre.Console;
 
 
@@ -109,15 +111,23 @@ namespace RedPowerOffInformer
 
                     if (addTimeMap)
                     {
-                        int spaceCount = Math.Clamp(DateTime.Now.Hour, 0, 24);
+                        (string timeMap, string timeMapPointer, string timeMapLegendLine1, string timeMapLegendLine2) = GetTimeMap(lOEPowerInfo.GroupInfos[i].PowerOffs);
 
                         table.AddRow(
                             new Markup($"[bold]TimeMapPointer[/]"),
-                            new Markup(new string(' ', spaceCount) + "↓"));
+                            new Markup(timeMapPointer));
 
                         table.AddRow(
                             new Markup($"[bold]TimeMap[/]"),
-                            new Markup(GetTimeMapString(lOEPowerInfo.GroupInfos[i].PowerOffs)));
+                            new Markup(timeMap));
+
+                        table.AddRow(
+                            new Markup($""),
+                            new Markup(timeMapLegendLine1));
+
+                        table.AddRow(
+                            new Markup($""),
+                            new Markup(timeMapLegendLine2));
                     }
 
                     break;
@@ -128,31 +138,82 @@ namespace RedPowerOffInformer
             AnsiConsole.Write(table);
         }
 
-        private static string GetTimeMapString(Period[] powerOffs)
+        private static (string timeMap, string timeMapPointer, string timeMapLegendLine1, string timeMapLegendLine2) GetTimeMap(Period[] powerOffs)
         {
-            //█
+            string timeMap = string.Empty;
+            string timeMapPointer = string.Empty;
 
-            bool[] timeMap = new bool[24];
+            int timeBlockLength = 30;
+            int coefficient = 60 / timeBlockLength;
+            int timeBlockArraySize = 24 * 60 / timeBlockLength;
+
+            bool[] timeMapArray = new bool[timeBlockArraySize];
+            char[] timeMapLegendArrayLine1 = new char[timeBlockArraySize];
+            char[] timeMapLegendArrayLine2 = new char[timeBlockArraySize];
 
             foreach (Period powerOff in powerOffs)
             {
-                int startHour = powerOff.Start.Hour;
-                int endHour = powerOff.End.Hour;
+                DateTime startTime = powerOff.Start;
+                DateTime endTime = powerOff.End;
 
-                for (int hour = startHour; hour < endHour; hour++)
+                double startTimeInMinutes = startTime.Hour * 60 + startTime.Minute;
+                int startBlock = Convert.ToInt32(Math.Round(startTimeInMinutes / timeBlockLength));
+
+                double durationInMinutes = (endTime - startTime).TotalMinutes;
+                int blockDuration = Convert.ToInt32(Math.Round(durationInMinutes / timeBlockLength));
+
+                startBlock = Math.Max(0, startBlock);
+                blockDuration = Math.Max(0, blockDuration);
+
+                for (int blockI = startBlock; blockI < startBlock + blockDuration; blockI++)
                 {
-                    timeMap[hour] = true;
+                    timeMapArray[blockI] = true;
                 }
             }
 
-            string result = string.Empty;
 
-            for (int i = 0; i < timeMap.Length; i++)
+            string colorOnEven = "#1fce00";
+            string colorOnOdd = "#18a100";
+            string colorOffEven = "#c90000";
+            string colorOffOdd = "#a30000";
+
+            for (int i = 0; i < timeMapArray.Length; i++)
             {
-                result += timeMap[i] ? "[red]█[/]" : "[green]█[/]";
+                bool even = i % 2 == 0;
+                string currentColor = timeMapArray[i] ? (even ? colorOffEven : colorOffOdd) : (even ? colorOnEven : colorOnOdd);
+
+                timeMap += $"[{currentColor}]█[/]";
             }
 
-            return result;
+
+            DateTime currentTime = DateTime.Now;
+
+            double currentTimeInMinutes = currentTime.Hour * 60 + currentTime.Minute;
+            int currentTimeBlock = Convert.ToInt32(Math.Round(currentTimeInMinutes / timeBlockLength));
+
+            currentTimeBlock = Math.Clamp(currentTimeBlock, 0, timeBlockArraySize - 1);
+
+            timeMapPointer = new string(' ', currentTimeBlock) + "[slowblink bold]↓[/]";
+
+
+            Array.Fill(timeMapLegendArrayLine1, ' ');
+            Array.Fill(timeMapLegendArrayLine2, ' ');
+
+            for (int i = 0; i < timeMapLegendArrayLine1.Length; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    string targetHour = (i / coefficient).ToString();
+
+                    timeMapLegendArrayLine1[i] = targetHour[0];
+
+                    if (targetHour.Length == 2)
+                        timeMapLegendArrayLine2[i] = targetHour[1];
+                }
+            }
+
+
+            return (timeMap, timeMapPointer, new string(timeMapLegendArrayLine1), new string(timeMapLegendArrayLine2));
         }
     }
 }
