@@ -14,8 +14,15 @@ namespace RedPowerOffInformer
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-GB", false);
             ApplicationPaths applicationPaths = new ApplicationPaths("RedPowerOffInformer");
 
-            // Clock.TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv");
-            Clock.TimeZoneOffset = TimeSpan.FromHours(2);
+            try
+            {
+                Clock.TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv");
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.WriteException(ex);
+                Clock.TimeZoneOffset = TimeSpan.FromHours(2);
+            }
 
             Settings? settings = null;
             Options? options = null;
@@ -36,7 +43,7 @@ namespace RedPowerOffInformer
             });
 
             settings ??= CreateNewSettingsAndSave(applicationPaths);
-            
+
             if (options is null)
                 Environment.Exit(0);
 
