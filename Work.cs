@@ -140,8 +140,6 @@ namespace RedPowerOffInformer
 
         private static (string timeMap, string timeMapPointer, string timeMapLegendLine1, string timeMapLegendLine2) GetTimeMap(Period[] powerOffs)
         {
-
-
             string timeMap = string.Empty;
             string timeMapPointer = string.Empty;
 
@@ -162,7 +160,7 @@ namespace RedPowerOffInformer
                 int startBlock = Convert.ToInt32(Math.Round(startTimeInMinutes / timeBlockLength));
 
                 double durationInMinutes = (endTime - startTime).TotalMinutes;
-                int blockDuration = Convert.ToInt32(Math.Round(durationInMinutes / timeBlockLength));
+                int blockDuration = Convert.ToInt32(Math.Round(durationInMinutes / timeBlockLength + 1)); // + 1 to change rounding bias in situations like X:30, X:00
 
                 startBlock = Math.Max(0, startBlock);
                 blockDuration = Math.Max(0, blockDuration);
