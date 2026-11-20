@@ -157,15 +157,13 @@ namespace RedPowerOffInformer
                 DateTime endTime = powerOff.End;
 
                 double startTimeInMinutes = startTime.Hour * 60 + startTime.Minute;
-                int startBlock = Convert.ToInt32(Math.Round(startTimeInMinutes / timeBlockLength));
+                // Periods past midnight are capped at end of day (24:00 is stored as 23:59, Ceiling maps it to the last block)
+                double endTimeInMinutes = endTime.Date > startTime.Date ? 24 * 60 : endTime.Hour * 60 + endTime.Minute;
 
-                double durationInMinutes = (endTime - startTime).TotalMinutes;
-                int blockDuration = Convert.ToInt32(Math.Round(durationInMinutes / timeBlockLength + 1)); // + 1 to change rounding bias in situations like X:30, X:00
+                int startBlock = Math.Clamp((int)Math.Floor(startTimeInMinutes / timeBlockLength), 0, timeBlockArraySize);
+                int endBlock = Math.Clamp((int)Math.Ceiling(endTimeInMinutes / timeBlockLength), 0, timeBlockArraySize);
 
-                startBlock = Math.Max(0, startBlock);
-                blockDuration = Math.Max(0, blockDuration);
-
-                for (int blockI = startBlock; blockI < startBlock + blockDuration; blockI++)
+                for (int blockI = startBlock; blockI < endBlock; blockI++)
                 {
                     timeMapArray[blockI] = true;
                 }
